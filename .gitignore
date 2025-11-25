@@ -1,0 +1,9 @@
+# Binaries and build artifacts
+/dist/
+/windoze-automation.exe
+/windoze-automation
+*.zip
+*.exe
+
+# Go artifacts
+bin/
