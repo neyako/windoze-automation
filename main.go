@@ -23,12 +23,15 @@ func buildPowerShellScript() string {
 		{Name: "OBS Studio", WingetID: "OBSProject.OBSStudio"},
 		{Name: "Brave Browser", WingetID: "Brave.Brave"},
 		{Name: "1Password", WingetID: "1Password.1Password"},
+		{Name: "ImageGlass", WingetID: "DuongDieuPhap.ImageGlass"},
 		{Name: "Steam", WingetID: "Valve.Steam"},
 		{Name: "Epic Games", WingetID: "EpicGames.EpicGamesLauncher"},
 		{Name: "DaVinci Resolve Studio", WingetID: "BlackmagicDesign.DaVinciResolveStudio"},
 		{Name: "HWInfo", WingetID: "REALiX.HWiNFO"},
 		{Name: "Cinebench R23", WingetID: "Maxon.CinebenchR23"},
 		{Name: "RustDesk", WingetID: "RustDesk.RustDesk"},
+		{Name: "K-Lite Codec Pack Full", WingetID: "CodecGuide.K-LiteCodecPack.Full"},
+		{Name: "LocalSend", WingetID: "LocalSend.LocalSend"},
 		{
 			Name:         "MSI Afterburner",
 			InstallerURL: "https://download.msi.com/uti_exe/vga/MSIAfterburnerSetup.zip",
@@ -111,6 +114,14 @@ if ($rtss) {
 
 func buildDebloatSection() string {
 	return strings.TrimSpace(`# Debloat and optimize using community scripts
+Write-Host "Creating a system restore point before debloating..." -ForegroundColor Yellow
+try {
+    Checkpoint-Computer -Description "Pre-WinDebloat" -RestorePointType MODIFY_SETTINGS | Out-Null
+    Write-Host "Restore point created." -ForegroundColor Green
+} catch {
+    Write-Warning "Failed to create restore point. Continuing without it."
+}
+
 Write-Host "Running Chris Titus Tech WinUtil..." -ForegroundColor Green
 Invoke-Expression (Invoke-WebRequest -Uri "https://christitus.com/win" -UseBasicParsing).Content
 
@@ -129,6 +140,47 @@ $braveUserData = Join-Path $env:LOCALAPPDATA "BraveSoftware/Brave-Browser/User D
 $profilePath = Join-Path $braveUserData "Default"
 $preferencesPath = Join-Path $profilePath "Preferences"
 $localStatePath = Join-Path $braveUserData "Local State"
+
+$enabledFlags = @(
+    "block-insecure-private-network-requests@1",
+    "brave-domain-block@1",
+    "brave-ephemeral-storage@1",
+    "clear-cross-site-cross-browsing-context-group-window-name@1",
+    "disallow-doc-written-script-loads@1",
+    "enable-isolated-sandboxed-iframes@1",
+    "enable-webview-tag-site-isolation@1",
+    "origin-agent-cluster-default@1",
+    "brave-adblock-cosmetic-filtering-child-frames@1",
+    "brave-dark-mode-block@1",
+    "brave-debounce@1",
+    "brave-domain-block-1pes@1",
+    "brave-extension-network-blocking@1",
+    "disable-process-reuse@1",
+    "enable-quic@1",
+    "brave-adblock-cosmetic-filtering@2",
+    "brave-vertical-tabs@1",
+    "brave-speedreader@1",
+    "brave-adblock-cosmetic-filtering-sync-load@1"
+)
+
+$disabledFlags = @(
+    "strict-origin-isolation",
+    "sync-trusted-vault-passphrase-recovery",
+    "u2f-security-key-api",
+    "web-sql-access",
+    "autofill-enable-sending-bcn-in-get-upload-details",
+    "autofill-fill-merchant-promo-code-fields",
+    "autofill-parse-merchant-promo-code-fields",
+    "device-posture",
+    "edit-context",
+    "enable-accessibility-live-caption",
+    "enable-autofill-credit-card-authentication",
+    "enable-generic-sensor-extra-classes",
+    "enable-webusb-device-detection",
+    "font-access",
+    "system-keyboard-lock",
+    "webxr-incubations"
+)
 
 if (-not (Test-Path $profilePath)) {
     Write-Host "Creating initial Brave profile structure..." -ForegroundColor Yellow
@@ -172,13 +224,9 @@ Update-JsonFile -Path $localStatePath -Update {
     if (-not $Json.Value.PSObject.Properties.Match("browser").Count) {
         $Json.Value.browser = @{}
     }
-    $Json.Value.browser.enabled_labs_experiments = @(
-        "brave-adblock-cosmetic-filtering@2",
-        "brave-ephemeral-storage@1",
-        "brave-vertical-tabs@1",
-        "brave-speedreader@1"
-    )
 
+    $Json.Value.browser.enabled_labs_experiments = $enabledFlags
+    $Json.Value.browser.disabled_labs_experiments = $disabledFlags
     $Json.Value.browser.clear_data = @{on_exit = @{ cache = $true; cookies = $true; history = $true }}
 }
 `)

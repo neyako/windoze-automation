@@ -4,9 +4,10 @@ A Go-based Windows post-install automation script that provisions core apps, run
 
 ## How it works
 - Generates a single PowerShell script that:
-  - Installs apps via `winget` or vendor packages (OBS, Brave, 1Password, Steam, Epic Games, DaVinci Resolve Studio, HWInfo, Cinebench R23, RustDesk, MSI Afterburner, RTSS).
+  - Installs apps via `winget` or vendor packages (OBS, Brave, 1Password, ImageGlass, Steam, Epic Games, DaVinci Resolve Studio, HWInfo, Cinebench R23, RustDesk, K-Lite Codec Pack Full, LocalSend, MSI Afterburner, RTSS).
+  - Creates a system restore point before any debloating runs.
   - Runs both Chris Titus Tech WinUtil and the Win11Debloat script for cleanup/tuning.
-  - Applies Brave profile defaults (startup pages, hides top sites, enables lab flags, clears data on exit).
+  - Applies Brave profile defaults and hardening flags from the [brave-browser-hardening](https://gitlab.com/CHEF-KOCH/brave-browser-hardening/-/tree/main) project.
   - Copies a custom `.ovl` overlay into the RTSS profiles folder.
 - The Go binary just prints the PowerShell payload to stdout so you can review/pipe it directly into PowerShell.
 
@@ -29,5 +30,5 @@ A Go-based Windows post-install automation script that provisions core apps, run
 
 ## Notes
 - The script uses `winget` IDs for most apps and falls back to vendor downloads for MSI Afterburner/RTSS.
-- Brave settings are applied to the `Default` profile. Adjust the JSON in `buildBraveSection` if you want different defaults.
+- Brave settings are applied to the `Default` profile with hardening and privacy-focused flags. Adjust the JSON in `buildBraveSection` if you want different defaults.
 - Debloat scripts are executed as-is from their upstream sources. Review before running if you need tighter control.
