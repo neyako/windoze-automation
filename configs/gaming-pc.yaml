@@ -1,0 +1,181 @@
+# Gaming PC Configuration
+# Optimized for gaming performance and minimal bloat
+
+general:
+  create_restore_point: true
+  restore_point_description: "Gaming PC Setup"
+  backup_registry: true
+  registry_backup_path: "C:\\Backups\\Registry"
+  log_path: "C:\\Logs\\WindowsAutomation"
+  reboot_after_completion: false
+
+software:
+  enabled: true
+  install_method: "winget"
+  packages:
+    # Gaming Platforms
+    - id: "Valve.Steam"
+      name: "Steam"
+      enabled: true
+    - id: "EpicGames.EpicGamesLauncher"
+      name: "Epic Games Launcher"
+      enabled: true
+    - id: "ElectronicArts.EADesktop"
+      name: "EA App"
+      enabled: false
+    
+    # Communication
+    - id: "Discord.Discord"
+      name: "Discord"
+      enabled: true
+    
+    # Utilities
+    - id: "7zip.7zip"
+      name: "7-Zip"
+      enabled: true
+    - id: "VideoLAN.VLC"
+      name: "VLC Media Player"
+      enabled: true
+    
+    # Performance Monitoring
+    - id: "CPUID.HWMonitor"
+      name: "HWMonitor"
+      enabled: true
+    - id: "REALiX.HWiNFO"
+      name: "HWiNFO"
+      enabled: false
+    
+    # Browser
+    - id: "Mozilla.Firefox"
+      name: "Firefox"
+      enabled: true
+
+drivers:
+  enabled: true
+  nvidia:
+    enabled: true
+    use_nvcleanstall: true
+    nvcleanstall_path: "C:\\Tools\\NVCleanstall"
+    auto_download: true
+    options:
+      disable_telemetry: true
+      disable_geforce_experience: true
+      disable_installer_telemetry: true
+      clean_install: true
+
+ctt_winutil:
+  enabled: true
+  auto_download: true
+  tweaks:
+    - name: "WPFTweaksDisableTelemetry"
+      description: "Disable Telemetry"
+      enabled: true
+    - name: "WPFTweaksDisableBGApps"
+      description: "Disable Background Apps"
+      enabled: true
+    - name: "WPFTweaksDisableActivityHistory"
+      description: "Disable Activity History"
+      enabled: true
+    - name: "WPFTweaksDisableLocationTracking"
+      description: "Disable Location Tracking"
+      enabled: true
+    - name: "WPFTweaksDarkMode"
+      description: "Enable Dark Mode"
+      enabled: true
+
+win11debloat:
+  enabled: true
+  auto_download: true
+  options:
+    remove_apps: true
+    disable_telemetry: true
+    disable_bing: true
+    disable_suggestions: true
+    restore_point: false
+  custom_apps_to_remove:
+    - "Microsoft.BingNews"
+    - "Microsoft.BingWeather"
+    - "Microsoft.GetHelp"
+    - "Microsoft.Getstarted"
+    - "Microsoft.MicrosoftOfficeHub"
+    - "Microsoft.MicrosoftSolitaireCollection"
+    - "Microsoft.People"
+    - "Microsoft.Todos"
+    - "Microsoft.WindowsAlarms"
+    - "Microsoft.WindowsFeedbackHub"
+    - "Microsoft.WindowsMaps"
+    - "Microsoft.YourPhone"
+    - "Microsoft.ZuneMusic"
+    - "Microsoft.ZuneVideo"
+    - "MicrosoftTeams"
+  apps_to_keep:
+    - "Microsoft.WindowsCalculator"
+    - "Microsoft.WindowsStore"
+    - "Microsoft.WindowsTerminal"
+    - "Microsoft.Xbox.TCUI"
+    - "Microsoft.XboxGameOverlay"
+    - "Microsoft.XboxGamingOverlay"
+    - "Microsoft.XboxIdentityProvider"
+
+windows_updates:
+  enabled: true
+  check_for_updates: true
+  install_updates: false
+  pause_updates_days: 0
+
+registry_tweaks:
+  enabled: true
+  tweaks:
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search"
+      name: "BingSearchEnabled"
+      value: 0
+      type: "DWord"
+      description: "Disable Bing in Windows Search"
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "HideFileExt"
+      value: 0
+      type: "DWord"
+      description: "Show file extensions"
+    - path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "AllowTelemetry"
+      value: 0
+      type: "DWord"
+      description: "Disable Telemetry"
+    # Gaming optimizations
+    - path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"
+      name: "GPU Priority"
+      value: 8
+      type: "DWord"
+      description: "Set GPU priority for games"
+    - path: "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games"
+      name: "Priority"
+      value: 6
+      type: "DWord"
+      description: "Set CPU priority for games"
+
+services:
+  enabled: true
+  services_to_disable:
+    - name: "DiagTrack"
+      description: "Connected User Experiences and Telemetry"
+    - name: "dmwappushservice"
+      description: "WAP Push Message Routing Service"
+    - name: "SysMain"
+      description: "Superfetch (disable for SSD)"
+      enabled: true
+
+scheduled_tasks:
+  enabled: true
+  tasks_to_disable:
+    - "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser"
+    - "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater"
+    - "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator"
+    - "\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip"
+
+post_scripts:
+  enabled: true
+  scripts:
+    - name: "Cleanup Temp Files"
+      command: "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue"
+      enabled: true
+

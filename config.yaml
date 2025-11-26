@@ -1,0 +1,280 @@
+# Windows Post-Installation Automation Configuration
+# This declarative configuration defines your entire Windows setup process
+
+# General Settings
+general:
+  create_restore_point: true
+  restore_point_description: "Pre-Automation Restore Point"
+  backup_registry: true
+  registry_backup_path: "C:\\Backups\\Registry"
+  log_path: "C:\\Logs\\WindowsAutomation"
+  reboot_after_completion: false
+
+# Software Installation via Winget
+software:
+  enabled: true
+  install_method: "winget"  # Options: winget, chocolatey
+  packages:
+    # Browsers
+    - id: "Mozilla.Firefox"
+      name: "Firefox"
+      enabled: true
+    - id: "Google.Chrome"
+      name: "Google Chrome"
+      enabled: false
+    
+    # Development Tools
+    - id: "Microsoft.VisualStudioCode"
+      name: "Visual Studio Code"
+      enabled: true
+    - id: "Git.Git"
+      name: "Git"
+      enabled: true
+    - id: "Microsoft.PowerShell"
+      name: "PowerShell 7"
+      enabled: true
+    
+    # Utilities
+    - id: "7zip.7zip"
+      name: "7-Zip"
+      enabled: true
+    - id: "VideoLAN.VLC"
+      name: "VLC Media Player"
+      enabled: true
+    - id: "Notepad++.Notepad++"
+      name: "Notepad++"
+      enabled: true
+    
+    # Communication
+    - id: "Discord.Discord"
+      name: "Discord"
+      enabled: false
+    - id: "SlackTechnologies.Slack"
+      name: "Slack"
+      enabled: false
+    
+    # Gaming (Optional)
+    - id: "Valve.Steam"
+      name: "Steam"
+      enabled: false
+
+# Driver Updates
+drivers:
+  enabled: true
+  nvidia:
+    enabled: true
+    use_nvcleanstall: true
+    nvcleanstall_path: "C:\\Tools\\NVCleanstall"
+    auto_download: true
+    # NVCleanstall options
+    options:
+      disable_telemetry: true
+      disable_geforce_experience: true
+      disable_installer_telemetry: true
+      clean_install: true
+
+# CTT WinUtil Configuration
+ctt_winutil:
+  enabled: true
+  # Download and run the latest version
+  auto_download: true
+  
+  # Tweaks to apply (based on WinUtil's preset configurations)
+  tweaks:
+    # Essential Tweaks
+    - name: "WPFTweaksRestorePoint"
+      description: "Create Restore Point"
+      enabled: true
+    
+    - name: "WPFTweaksDisableBGApps"
+      description: "Disable Background Apps"
+      enabled: true
+    
+    - name: "WPFTweaksDisableTelemetry"
+      description: "Disable Telemetry"
+      enabled: true
+    
+    - name: "WPFTweaksDisableHomeGallery"
+      description: "Disable Home Gallery"
+      enabled: true
+    
+    - name: "WPFTweaksDisableNotifications"
+      description: "Disable Notification Tray/Calendar"
+      enabled: false
+    
+    - name: "WPFTweaksDisableRecall"
+      description: "Disable Recall"
+      enabled: true
+    
+    # Performance Tweaks
+    - name: "WPFTweaksDisableUAC"
+      description: "Disable UAC"
+      enabled: false
+    
+    - name: "WPFTweaksDisableipsix"
+      description: "Disable IPv6"
+      enabled: false
+    
+    - name: "WPFTweaksDisableActivityHistory"
+      description: "Disable Activity History"
+      enabled: true
+    
+    - name: "WPFTweaksDisableLocationTracking"
+      description: "Disable Location Tracking"
+      enabled: true
+    
+    - name: "WPFTweaksDisableConsumerFeatures"
+      description: "Disable Consumer Features"
+      enabled: true
+    
+    # Visual Tweaks
+    - name: "WPFTweaksDarkMode"
+      description: "Enable Dark Mode"
+      enabled: true
+    
+    - name: "WPFTweaksDisableAnimations"
+      description: "Disable Animations"
+      enabled: false
+    
+    - name: "WPFTweaksShowExt"
+      description: "Show File Extensions"
+      enabled: true
+    
+    - name: "WPFTweaksShowHiddenFiles"
+      description: "Show Hidden Files"
+      enabled: true
+    
+    # Privacy Tweaks
+    - name: "WPFTweaksDisableCortana"
+      description: "Disable Cortana"
+      enabled: true
+    
+    - name: "WPFTweaksDisableAdvertisingID"
+      description: "Disable Advertising ID"
+      enabled: true
+    
+    - name: "WPFTweaksDisableFeedback"
+      description: "Disable Feedback"
+      enabled: true
+
+# Win11Debloat Configuration
+win11debloat:
+  enabled: true
+  auto_download: true
+  
+  # Debloat options
+  options:
+    remove_apps: true
+    disable_telemetry: true
+    disable_bing: true
+    disable_suggestions: true
+    restore_point: false  # Already created by main script
+    
+  # Custom app removal list (in addition to defaults)
+  # Set to empty array to use Win11Debloat defaults only
+  custom_apps_to_remove:
+    - "Microsoft.BingNews"
+    - "Microsoft.BingWeather"
+    - "Microsoft.GamingApp"
+    - "Microsoft.GetHelp"
+    - "Microsoft.Getstarted"
+    - "Microsoft.MicrosoftOfficeHub"
+    - "Microsoft.MicrosoftSolitaireCollection"
+    - "Microsoft.People"
+    - "Microsoft.PowerAutomateDesktop"
+    - "Microsoft.Todos"
+    - "Microsoft.WindowsAlarms"
+    - "Microsoft.WindowsFeedbackHub"
+    - "Microsoft.WindowsMaps"
+    - "Microsoft.Xbox.TCUI"
+    - "Microsoft.XboxGameOverlay"
+    - "Microsoft.XboxGamingOverlay"
+    - "Microsoft.XboxIdentityProvider"
+    - "Microsoft.XboxSpeechToTextOverlay"
+    - "Microsoft.YourPhone"
+    - "Microsoft.ZuneMusic"
+    - "Microsoft.ZuneVideo"
+    - "MicrosoftTeams"
+    
+  # Apps to keep (whitelist)
+  apps_to_keep:
+    - "Microsoft.WindowsCalculator"
+    - "Microsoft.WindowsStore"
+    - "Microsoft.WindowsTerminal"
+    - "Microsoft.Paint"
+    - "Microsoft.ScreenSketch"
+
+# Windows Updates
+windows_updates:
+  enabled: true
+  check_for_updates: true
+  install_updates: false  # Set to true for automatic installation
+  pause_updates_days: 0   # Pause updates for X days (0 = don't pause)
+
+# Additional Registry Tweaks
+registry_tweaks:
+  enabled: true
+  tweaks:
+    # Disable Windows Search Web Results
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search"
+      name: "BingSearchEnabled"
+      value: 0
+      type: "DWord"
+      description: "Disable Bing in Windows Search"
+    
+    # Disable Cortana
+    - path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+      name: "AllowCortana"
+      value: 0
+      type: "DWord"
+      description: "Disable Cortana"
+    
+    # Show file extensions
+    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "HideFileExt"
+      value: 0
+      type: "DWord"
+      description: "Show file extensions"
+    
+    # Disable Telemetry
+    - path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "AllowTelemetry"
+      value: 0
+      type: "DWord"
+      description: "Disable Telemetry"
+
+# Services to disable
+services:
+  enabled: true
+  services_to_disable:
+    - name: "DiagTrack"
+      description: "Connected User Experiences and Telemetry"
+    - name: "dmwappushservice"
+      description: "WAP Push Message Routing Service"
+    - name: "SysMain"
+      description: "Superfetch (if you have SSD)"
+      enabled: false  # Keep enabled for HDD users
+
+# Scheduled Tasks to disable
+scheduled_tasks:
+  enabled: true
+  tasks_to_disable:
+    - "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser"
+    - "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater"
+    - "\\Microsoft\\Windows\\Autochk\\Proxy"
+    - "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator"
+    - "\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip"
+    - "\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector"
+
+# Post-Installation Scripts
+post_scripts:
+  enabled: true
+  scripts:
+    - name: "Cleanup Temp Files"
+      command: "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue"
+      enabled: true
+    
+    - name: "Clear Windows Update Cache"
+      command: "Stop-Service wuauserv; Remove-Item -Path C:\\Windows\\SoftwareDistribution\\Download\\* -Recurse -Force -ErrorAction SilentlyContinue; Start-Service wuauserv"
+      enabled: false
+

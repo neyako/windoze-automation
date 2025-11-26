@@ -1,9 +1,33 @@
-# Binaries and build artifacts
-/dist/
-/windoze-automation.exe
-/windoze-automation
-*.zip
-*.exe
+# Logs
+Logs/
+*.log
 
-# Go artifacts
-bin/
+# Backups
+Backups/
+*.reg
+
+# Temporary files
+*.tmp
+*.temp
+
+# PowerShell specific
+*.ps1.bak
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# User specific configs (keep config.yaml as template)
+config.local.yaml
+config.*.yaml
+!config.sample.yaml
+
+# Downloaded tools
+Tools/
+Downloads/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
