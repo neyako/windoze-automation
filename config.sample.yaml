@@ -1,0 +1,67 @@
+# Declarative configuration for windoze-automation
+installers:
+  - name: OBS Studio
+    wingetId: OBSProject.OBSStudio
+  - name: Brave Browser
+    wingetId: Brave.Brave
+  - name: 1Password
+    wingetId: 1Password.1Password
+  - name: ImageGlass
+    wingetId: DuongDieuPhap.ImageGlass
+  - name: Steam
+    wingetId: Valve.Steam
+  - name: Epic Games
+    wingetId: EpicGames.EpicGamesLauncher
+  - name: DaVinci Resolve Studio
+    wingetId: BlackmagicDesign.DaVinciResolveStudio
+  - name: HWInfo
+    wingetId: REALiX.HWiNFO
+  - name: Cinebench R23
+    wingetId: Maxon.CinebenchR23
+  - name: RustDesk
+    wingetId: RustDesk.RustDesk
+  - name: K-Lite Codec Pack Full
+    wingetId: CodecGuide.K-LiteCodecPack.Full
+  - name: LocalSend
+    wingetId: LocalSend.LocalSend
+
+bundles:
+  - name: "MSI Afterburner + RTSS"
+    archiveUrl: https://download.msi.com/uti_exe/vga/MSIAfterburnerSetup.zip
+    installer:
+      name: MSI Afterburner
+      installerFile: MSIAfterburnerSetup.exe
+      silentArgs: /S
+    additionalInstallers:
+      - name: RivaTuner Statistics Server
+        installerFile: RTSSSetup763.exe
+        silentArgs: /S
+
+debloat:
+  enableRestorePoint: true
+  runWinUtil: true
+  runWin11Debloat: true
+
+brave:
+  enabled: true
+  startupUrls:
+    - https://start.duckduckgo.com
+    - https://github.com
+  hideTopSites: true
+  clearDataOnExit: true
+  enabledFlags: []
+  disabledFlags: []
+
+wallpaper:
+  # Either a URL or a relative path inside the repo (resolved from the script directory)
+  source: assets/wallpaper/custom.jpg
+  destination: $env:LOCALAPPDATA\Microsoft\Windows\Themes\CustomWallpaper.jpg
+
+shell:
+  unpinStart: true
+  clearTaskbar: true
+  hideDesktopIcons: true
+  autoHideTaskbar: true
+
+rtss:
+  overlayPath: assets/rtss/custom.ovl
