@@ -25,7 +25,7 @@ A declarative automation system for Windows post-installation tasks. Configure e
 
 1. **Clone or download this repository**:
    ```powershell
-   git clone https://github.com/yourusername/windoze-automation.git
+   git clone https://github.com/neyako/windoze-automation.git
    cd windoze-automation
    ```
 
