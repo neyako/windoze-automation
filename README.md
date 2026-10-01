@@ -1,302 +1,96 @@
-# Windows Post-Installation Automation
+# windoze
 
-A declarative automation system for Windows post-installation tasks. Configure everything in YAML and let the script handle the rest!
+I review laptops for short-form videos. Brands lend me a machine for a week or two, and every one arrives
+the same way: half-updated Windows, trial antivirus, ads in the Start menu, an old graphics driver.
+Before I can say anything fair about it, I have to clean it up, install my apps and run the same tests I ran
+on the last one.
 
-## 🚀 Features
+This repo does all of that from one external SSD. Plug it in, double-click `Setup.cmd`, approve the admin
+prompt once, and come back later to a laptop that is clean, fully updated and ready to test.
 
-- **Declarative Configuration**: Define your entire Windows setup in a single YAML file
-- **Safety First**: Automatic restore point creation and registry backup before making changes
-- **Software Installation**: Automated installation via Winget
-- **Driver Updates**: NVIDIA driver updates via NVCleanstall integration
-- **System Optimization**: Integration with CTT WinUtil and Win11Debloat
-- **Privacy & Debloating**: Remove bloatware, disable telemetry, and apply privacy tweaks
-- **Custom Tweaks**: Registry modifications, service configuration, and scheduled task management
-- **Comprehensive Logging**: Detailed logs of all operations
-- **Dry Run Mode**: Preview changes before applying them
+> Built for borrowed test laptops, not your daily PC. It turns off the firewall and UAC prompts and
+> installs my personal app list. Read `config.psd1` before running it on anything you care about.
 
-## 📋 Prerequisites
+## What setup does
 
-- Windows 10 or Windows 11
-- PowerShell 5.1 or higher
-- Administrator privileges
-- Internet connection (for downloading tools and software)
+In order, picking up by itself after every reboot:
 
-## 🔧 Installation
+1. **Copies the test tools** to `C:\Bench` and puts two shortcuts on the desktop: **CBR23 Bench** and **Battery Test**.
+2. **Sets the clock** to Vietnam time (UTC+7). Laptops usually arrive set up with a US region and time zone.
+3. **Cleans Windows**: removes ads, suggestions, Bing in search, Copilot, Recall, Widgets and preinstalled junk
+   (trial antivirus, Booking.com and so on). Dark mode, file extensions shown, a quieter File Explorer.
+   Windows Terminal becomes the default console.
+   It never touches power plans or sleep settings, and it keeps the brand's own apps (fan modes, RGB, screen
+   control), because those change benchmark results and are part of the review.
+4. **Installs runtimes** most apps and games need: .NET, Visual C++, DirectX, Java, Python, Node.
+5. **Installs my apps** (browser, chat, password manager, Steam, MSI Afterburner and more) from the list in
+   `config.psd1`, and copies my Brave settings.
+6. **Runs Windows Update** until nothing is left, rebooting as many times as it takes. It also stops Windows
+   from restarting by itself while you're signed in.
+7. **Installs the newest graphics driver** straight from NVIDIA or AMD, after Windows Update so it can't be
+   replaced by an older one. Intel graphics drivers come from Windows Update.
+8. **Updates everything else**, including the brand's Microsoft Store apps.
+9. **Installs PCMark 10 and DaVinci Resolve** from the SSD. Resolve can't install silently, so its installer
+   opens at the end for you to click through.
+10. **Turns off startup apps** so every laptop starts its tests from the same quiet state.
+11. **Unpins everything** from Start and the taskbar.
 
-1. **Clone or download this repository**:
-   ```powershell
-   git clone https://github.com/neyako/windoze-automation.git
-   cd windoze-automation
-   ```
+At the end it prints a short list of things only you can do: sign-ins, adding the Steam library on the SSD.
+If something failed, it's listed there too. The full log is `C:\Bench\setup.log`.
 
-2. **Review and customize the configuration**:
-   - Open `config.yaml` in your favorite text editor
-   - Enable/disable features as needed
-   - Add or remove software packages
-   - Customize tweaks and optimizations
+## Testing
 
-3. **Run the automation script**:
-   ```powershell
-   # Run with default config
-   .\Install-WindowsAutomation.ps1
+Both tests refuse to start while setup is still running or Windows is waiting to restart, because either
+one would interrupt the test halfway.
 
-   # Preview changes without applying (dry run)
-   .\Install-WindowsAutomation.ps1 -DryRun
+### CBR23 Bench
 
-   # Use a custom config file
-   .\Install-WindowsAutomation.ps1 -ConfigPath "C:\path\to\custom-config.yaml"
-   ```
+A 10-minute Cinebench R23 run on all cores, then 10 minutes on one core, with a 2-minute cooldown before each.
+Ten minutes is the point: a laptop that scores high for 30 seconds and then throttles shows up here.
 
-## 📝 Configuration Guide
+While it runs, it records every sensor once a second through HWiNFO. Each run adds one row per test to
+the laptop's summary: score, CPU power, temperature and clock speed. It notices by itself whether the laptop
+is plugged in or on battery, so run it once each way. When it asks for a note, type the brand's fan or
+performance mode (for example "Turbo" or "Balance") so you know later what the numbers mean.
 
-The `config.yaml` file is organized into sections:
+If something on the laptop tries to close Cinebench mid-run, the script answers "No" and notes the time.
 
-### General Settings
-```yaml
-general:
-  create_restore_point: true
-  backup_registry: true
-  registry_backup_path: "C:\\Backups\\Registry"
-  log_path: "C:\\Logs\\WindowsAutomation"
-  reboot_after_completion: false
-```
+### Battery Test
 
-### Software Installation
-```yaml
-software:
-  enabled: true
-  install_method: "winget"
-  packages:
-    - id: "Mozilla.Firefox"
-      name: "Firefox"
-      enabled: true
-```
+How long the laptop lasts doing normal things: browsing five websites, scrolling Word and Excel files and
+watching YouTube, on a loop until it dies. Brightness and volume are set by the script so every laptop is
+tested the same way.
 
-Add any software available in the Winget repository. Find package IDs at [winget.run](https://winget.run/).
+Charge to 100%, unplug the SSD (it draws power), open the shortcut and unplug the charger when it asks.
+Open the shortcut again after charging to see the result.
 
-### Driver Updates
-```yaml
-drivers:
-  enabled: true
-  nvidia:
-    enabled: true
-    use_nvcleanstall: true
-```
+### Results
 
-**Note**: NVCleanstall requires manual setup. Download from [TechPowerUp](https://www.techpowerup.com/nvcleanstall/).
+Everything goes to `C:\Bench\results\<laptop name>\`, and is copied to the SSD the next time a test runs with
+the SSD plugged in. The SSD also keeps one table per test with every laptop ever tested, ready to compare.
 
-### CTT WinUtil Integration
-```yaml
-ctt_winutil:
-  enabled: true
-  tweaks:
-    - name: "WPFTweaksDisableTelemetry"
-      description: "Disable Telemetry"
-      enabled: true
-```
+Game benchmarks are by hand: MSI Afterburner is installed and the games live on the SSD.
 
-**Note**: CTT WinUtil is primarily GUI-based. The script will guide you to run it manually or you can implement preset-based automation.
-
-### Win11Debloat Integration
-```yaml
-win11debloat:
-  enabled: true
-  options:
-    remove_apps: true
-    disable_telemetry: true
-    disable_bing: true
-  custom_apps_to_remove:
-    - "Microsoft.BingNews"
-    - "Microsoft.GamingApp"
-```
-
-### Registry Tweaks
-```yaml
-registry_tweaks:
-  enabled: true
-  tweaks:
-    - path: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search"
-      name: "BingSearchEnabled"
-      value: 0
-      type: "DWord"
-      description: "Disable Bing in Windows Search"
-```
-
-### Services Configuration
-```yaml
-services:
-  enabled: true
-  services_to_disable:
-    - name: "DiagTrack"
-      description: "Connected User Experiences and Telemetry"
-```
-
-### Scheduled Tasks
-```yaml
-scheduled_tasks:
-  enabled: true
-  tasks_to_disable:
-    - "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser"
-```
-
-## 🎯 Usage Examples
-
-### Basic Usage
-```powershell
-# Run with administrator privileges
-.\Install-WindowsAutomation.ps1
-```
-
-### Preview Changes (Recommended First Run)
-```powershell
-.\Install-WindowsAutomation.ps1 -DryRun
-```
-
-### Custom Configuration
-```powershell
-.\Install-WindowsAutomation.ps1 -ConfigPath ".\configs\gaming-pc.yaml"
-```
-
-## 🔒 Safety Features
-
-1. **System Restore Point**: Automatically created before any changes
-2. **Registry Backup**: Full registry backup saved to specified location
-3. **Dry Run Mode**: Preview all changes without applying them
-4. **Comprehensive Logging**: All operations logged with timestamps
-5. **Error Handling**: Graceful failure handling with detailed error messages
-
-## 📊 What Gets Automated
-
-### ✅ Fully Automated
-- ✔️ System restore point creation
-- ✔️ Registry backup
-- ✔️ Software installation via Winget
-- ✔️ Win11Debloat execution
-- ✔️ Registry tweaks
-- ✔️ Service configuration
-- ✔️ Scheduled task management
-- ✔️ Post-installation scripts
-
-### ⚠️ Requires Manual Steps
-- ⚠️ CTT WinUtil (GUI-based, can be run separately)
-- ⚠️ NVCleanstall (requires initial setup and configuration)
-
-## 🛠️ Advanced Configuration
-
-### Creating Multiple Profiles
-
-Create different configuration files for different scenarios:
+## The SSD
 
 ```
-configs/
-  ├── gaming-pc.yaml
-  ├── work-laptop.yaml
-  ├── minimal-install.yaml
-  └── developer-setup.yaml
+X:\windoze\                    this repo
+  tools\                       installers too big for git (PCMark, Resolve), see tools\README.md
+  games\SteamLibrary\          3DMark and games. Steam > Settings > Storage > add this folder
+  results\                     every laptop's results
 ```
 
-Run with specific profile:
-```powershell
-.\Install-WindowsAutomation.ps1 -ConfigPath ".\configs\gaming-pc.yaml"
-```
+The SSD is exFAT so it also works on a Mac.
 
-### Adding Custom Software
+## Remote help over SSH
 
-Find Winget package IDs:
-```powershell
-winget search "application name"
-```
+If `assets\devbox.pub` exists, setup turns on SSH with that key only (no passwords) and prints the laptop's
+address at the end. That lets me check on a stuck setup or a test from another computer. The key is not in
+git; put your own public key there if you want this, or leave it out and setup skips it.
 
-Add to `config.yaml`:
-```yaml
-- id: "Package.ID"
-  name: "Friendly Name"
-  enabled: true
-```
+## Tweaking
 
-### Custom Registry Tweaks
+Everything personal lives in `config.psd1`: time zone, apps, what gets removed, which startup apps stay on,
+Brave flags, and the battery test's websites and videos. `tests\Test-Config.ps1` checks it for mistakes.
 
-Add your own registry modifications:
-```yaml
-registry_tweaks:
-  tweaks:
-    - path: "HKCU:\\Path\\To\\Key"
-      name: "ValueName"
-      value: 1
-      type: "DWord"  # Options: String, DWord, QWord, Binary
-      description: "What this tweak does"
-```
-
-## 📁 Project Structure
-
-```
-windoze-automation/
-├── Install-WindowsAutomation.ps1  # Main automation script
-├── config.yaml                     # Default configuration
-├── README.md                       # This file
-└── Logs/                          # Generated logs (created automatically)
-```
-
-## 🐛 Troubleshooting
-
-### Script Won't Run
-- Ensure you're running PowerShell as Administrator
-- Check execution policy: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-
-### Winget Not Found
-- Install "App Installer" from Microsoft Store
-- Or download from: https://github.com/microsoft/winget-cli/releases
-
-### PowerShell-Yaml Module Issues
-- The script will automatically install it
-- Manual install: `Install-Module -Name powershell-yaml -Force`
-
-### Restore Point Creation Fails
-- Enable System Protection for C: drive in System Properties
-- Ensure you have sufficient disk space
-
-## 🔗 Related Projects
-
-- [CTT WinUtil](https://github.com/ChrisTitusTech/winutil) - Comprehensive Windows utility
-- [Win11Debloat](https://github.com/Raphire/Win11Debloat) - Windows 11 debloating tool
-- [NVCleanstall](https://www.techpowerup.com/nvcleanstall/) - Clean NVIDIA driver installer
-
-## 📜 License
-
-MIT License - Feel free to use and modify as needed.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
-
-## ⚠️ Disclaimer
-
-This script makes system-wide changes to your Windows installation. While it includes safety features like restore points and registry backups, use at your own risk. Always test in a non-production environment first.
-
-## 📞 Support
-
-- Open an issue on GitHub
-- Check the logs in the configured log directory
-- Review the configuration file for syntax errors
-
-## 🗺️ Roadmap
-
-- [ ] Full CTT WinUtil preset integration
-- [ ] NVCleanstall command-line automation
-- [ ] GUI configuration editor
-- [ ] Pre-built configuration profiles
-- [ ] Rollback functionality
-- [ ] Remote configuration management
-- [ ] Windows Update automation
-- [ ] Chocolatey support as alternative to Winget
-
-## 📚 Additional Resources
-
-- [Winget Package Repository](https://winget.run/)
-- [Windows Registry Reference](https://docs.microsoft.com/en-us/windows/win32/sysinfo/registry)
-- [PowerShell Documentation](https://docs.microsoft.com/en-us/powershell/)
-
----
-
-**Made with ❤️ for Windows power users**
-
+The empty Start layout in `assets\start2.bin` is from [Win11Debloat](https://github.com/Raphire/Win11Debloat) (MIT).
