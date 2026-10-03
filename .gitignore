@@ -3,3 +3,4 @@ tools/*
 results/
 games/
 assets/devbox.pub
+__pycache__/

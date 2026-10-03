@@ -1,0 +1,67 @@
+{
+  "extensions": {
+    "aeblfdkhhhdcdjpifhhbdiojplfjncoa": "1Password – Password Manager",
+    "dhdgffkkebhmkfjojejmpbldmpobfkfo": "Tampermonkey",
+    "gebbhagfogifgggkldgodflihgfeippi": "Return YouTube Dislike",
+    "hlkenndednhfkekhgcdicdfddnkalmdm": "Cookie-Editor",
+    "ldpochfccmkkmhdbclfhpagapcfdljkj": "Decentraleyes",
+    "mhhalndcidpfcemnlidabgieccknndei": "TubeMod",
+    "mnjggcdmjocbbbhaepdhchncahnbgone": "SponsorBlock for YouTube - Skip Sponsorships",
+    "nmkinhboiljjkhaknpaeaicmdjhagpep": "Fluff Busting Purity",
+    "pkehgijcmpdhfbdbbnkijodmdjhbjlgp": "Privacy Badger",
+    "ponfpcnoihfmfllpaingbgckeeldkhle": "Enhancer for YouTube™"
+  },
+  "flags": {
+    "enabled_labs_experiments": [
+      "custom-ntp"
+    ],
+    "enabled_labs_experiments_origin_lists": {
+      "custom-ntp": "https://homepage.neyahub.com/"
+    }
+  },
+  "preferences": {
+    "helium": {
+      "browser": {
+        "layout": 1,
+        "rounded_frame": true,
+        "zen_mode": false
+      },
+      "completed_onboarding": true,
+      "services": {
+        "schema_version": 1,
+        "user_consented": true
+      }
+    },
+    "browser": {
+      "theme": {
+        "color_variant2": 1,
+        "user_color2": -7558172
+      }
+    },
+    "extensions": {
+      "theme": {
+        "id": "user_color_theme_id"
+      },
+      "pinned_extensions": [
+        "blockjmkbacgjkknlgpkjjiijinjdanf",
+        "aeblfdkhhhdcdjpifhhbdiojplfjncoa",
+        "dhdgffkkebhmkfjojejmpbldmpobfkfo"
+      ]
+    },
+    "vertical_tabs": {
+      "collapsed_state": false,
+      "uncollapsed_width": 200
+    },
+    "download": {
+      "prompt_for_download": true
+    },
+    "search": {
+      "suggest_enabled": true
+    },
+    "spellcheck": {
+      "dictionaries": [
+        "en-GB"
+      ]
+    }
+  }
+}

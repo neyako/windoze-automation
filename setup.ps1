@@ -216,15 +216,41 @@ function Install-SsdInstallers {
     }
 }
 
-function Set-BraveFlags {
-    $path = "$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\User Data\Local State"
-    Stop-Process -Name brave -Force -ErrorAction SilentlyContinue
-    $state = if (Test-Path $path) { Get-Content $path -Raw | ConvertFrom-Json } else { [pscustomobject]@{} }
-    if (-not $state.browser) { $state | Add-Member browser ([pscustomobject]@{}) }
-    $state.browser | Add-Member enabled_labs_experiments @($Config.BraveFlags) -Force
-    New-Item -ItemType Directory -Force (Split-Path $path) | Out-Null
-    [IO.File]::WriteAllText($path, ($state | ConvertTo-Json -Depth 100 -Compress), (New-Object Text.UTF8Encoding $false))
-    Write-Host "  $($Config.BraveFlags.Count) flags set"
+# Sets each top-level key of $Patch in a JSON file, one level deep so the rest of an existing file survives.
+function Merge-JsonFile([string]$Path, $Patch) {
+    $json = if (Test-Path $Path) { Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json } else { [pscustomobject]@{} }
+    foreach ($p in $Patch.PSObject.Properties) {
+        if ($json.($p.Name) -is [Management.Automation.PSCustomObject] -and $p.Value -is [Management.Automation.PSCustomObject]) {
+            foreach ($c in $p.Value.PSObject.Properties) { $json.($p.Name) | Add-Member $c.Name $c.Value -Force }
+        } else { $json | Add-Member $p.Name $p.Value -Force }
+    }
+    New-Item -ItemType Directory -Force (Split-Path $Path) | Out-Null
+    [IO.File]::WriteAllText($Path, ($json | ConvertTo-Json -Depth 100 -Compress), (New-Object Text.UTF8Encoding $false))
+}
+
+# My Helium extensions, flags and settings, backed up from the Mac by helium\backup.py.
+function Restore-Helium {
+    $backup = Get-Content "$PSScriptRoot\helium\helium.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+    $userData = "$env:LOCALAPPDATA\imput\Helium\User Data"
+    Get-Process chrome -ErrorAction SilentlyContinue | Where-Object Path -like '*\imput\Helium\*' |
+        ForEach-Object { $_.Kill(); $_.WaitForExit() }   # it rewrites these files on exit
+
+    # Bare IDs install from the Web Store through Helium's proxy. With an update URL, Windows ignores them
+    # on PCs that aren't domain-joined.
+    $policy = 'HKLM:\SOFTWARE\Policies\Helium\ExtensionInstallForcelist'
+    if (Test-Path $policy) { Remove-Item $policy }
+    New-Item $policy -Force | Out-Null
+    $ids = @($backup.extensions.PSObject.Properties.Name)
+    for ($i = 0; $i -lt $ids.Count; $i++) { New-ItemProperty $policy ($i + 1) -Value $ids[$i] -PropertyType String | Out-Null }
+
+    Merge-JsonFile "$userData\Local State" ([pscustomobject]@{ browser = $backup.flags })
+    Merge-JsonFile "$userData\Default\Preferences" $backup.preferences
+
+    # Each extension's data is a LevelDB folder, replaced whole: files from two databases can't be mixed.
+    foreach ($dir in Get-ChildItem "$PSScriptRoot\helium\data\*\*" -Directory) {
+        robocopy $dir.FullName "$userData\Default\$($dir.Parent.Name)\$($dir.Name)" /MIR /NJH /NJS /NFL /NDL /NP | Out-Null
+    }
+    Write-Host "  $($ids.Count) extensions, $(@($backup.flags.enabled_labs_experiments).Count) flags, settings"
 }
 
 # Returns $true when a reboot is needed before the next pass.
@@ -332,7 +358,7 @@ $Steps = [ordered]@{
     'Debloat'        = { Invoke-Debloat $Config }
     'Runtimes'       = { Install-Runtimes }
     'Apps'           = { Install-Apps }
-    'Brave flags'    = { Set-BraveFlags }
+    'Helium'         = { Restore-Helium }
     'Windows Update' = { Update-Windows }        # may reboot and exit here
     'GPU driver'     = { Update-GpuDriver }      # after Windows Update so it can't be replaced by an older one
     'Upgrade all'    = { Update-Everything }
@@ -364,7 +390,8 @@ if (Get-Service sshd -ErrorAction SilentlyContinue) { Write-Host "`nSSH from the
 Write-Host @'
 
 Left for you:
-  - Sign in: 1Password, Brave sync, Telegram, Vesktop, Tailscale, Steam
+  - Sign in: 1Password, Telegram, Vesktop, Tailscale, Steam
+  - Helium: Settings > Search engine > Google (it can't be set from a script)
   - Steam > Settings > Storage > add the SSD library (3DMark + games)
   - EVKey: enable "start with Windows"
   - Open Word once to clear first-run dialogs before the battery test

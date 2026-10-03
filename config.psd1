@@ -32,7 +32,8 @@
 
     Apps = @(
         'Microsoft.WindowsTerminal'
-        'Brave.Brave'
+        'ImputNet.Helium'
+        'Brave.Brave'                        # only for the battery test, so results stay comparable
         'AgileBits.1Password'
         'Telegram.TelegramDesktop'
         'Vencord.Vesktop'
@@ -153,20 +154,6 @@
     # Everything else in Task Manager > Startup apps is disabled at the end of setup (wildcards on name or command).
     StartupKeep = @(
         '*Wallpaper*'
-    )
-
-    # Copied verbatim from brave://flags on the MacBook.
-    BraveFlags = @(
-        'brave-rewards-allow-self-custody-providers@2'
-        'brave-rewards-allow-unsupported-wallet-providers@2'
-        'brave-rewards-animated-background@2'
-        'brave-rewards-platform-creator-detection@2'
-        'brave-rewards-verbose-logging@2'
-        'brave-show-strict-fingerprinting-mode@1'
-        'brave-wallet-bitcoin@2'
-        'brave-wallet-cardano@2'
-        'brave-wallet-zcash@4'
-        'enable-force-dark@1'
     )
 
     Battery = @{

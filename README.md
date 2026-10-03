@@ -24,7 +24,7 @@ In order, picking up by itself after every reboot:
    control), because those change benchmark results and are part of the review.
 4. **Installs runtimes** most apps and games need: .NET, Visual C++, DirectX, Java, Python, Node.
 5. **Installs my apps** (browser, chat, password manager, Steam, MSI Afterburner and more) from the list in
-   `config.psd1`, and copies my Brave settings.
+   `config.psd1`, and sets up Helium with my extensions and settings (see [Helium](#helium)).
 6. **Runs Windows Update** until nothing is left, rebooting as many times as it takes. It also stops Windows
    from restarting by itself while you're signed in.
 7. **Installs the newest graphics driver** straight from NVIDIA or AMD, after Windows Update so it can't be
@@ -88,9 +88,23 @@ If `assets\devbox.pub` exists, setup turns on SSH with that key only (no passwor
 address at the end. That lets me check on a stuck setup or a test from another computer. The key is not in
 git; put your own public key there if you want this, or leave it out and setup skips it.
 
+## Helium
+
+Helium has no sync, so `helium\` is the backup of the Helium on my Mac: the extension list, flags, a few
+settings (layout, theme, pinned extensions) and each extension's own data, Tampermonkey scripts included.
+Setup force-installs the extensions by policy and puts the rest in place before Helium first starts, so
+Helium says it is managed and the extensions can't be removed on the laptop.
+
+To update it, in a clone of this repo on the Mac: quit Helium, run `python3 helium/backup.py`, check
+`git diff`, commit. The repo is public, so it leaves out 1Password's data and the user IDs extensions keep
+(SponsorBlock, Return YouTube Dislike, and FB Purity's settings, which are named after the Facebook account).
+If one of those IDs also shows up somewhere else, it stops without writing anything.
+
+The battery test still uses Brave with a clean profile, so its results stay comparable with older laptops.
+
 ## Tweaking
 
 Everything personal lives in `config.psd1`: time zone, apps, what gets removed, which startup apps stay on,
-Brave flags, and the battery test's websites and videos. `tests\Test-Config.ps1` checks it for mistakes.
+and the battery test's websites and videos. `tests\Test-Config.ps1` checks it for mistakes.
 
 The empty Start layout in `assets\start2.bin` is from [Win11Debloat](https://github.com/Raphire/Win11Debloat) (MIT).
