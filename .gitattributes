@@ -1,0 +1,2 @@
+# LevelDB folders: CRLF conversion would corrupt CURRENT.
+helium/data/** -text
